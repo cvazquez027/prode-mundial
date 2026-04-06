@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import '../../../data/repositories/auth_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class InscriptionScreen extends ConsumerWidget {
   const InscriptionScreen({super.key});
@@ -99,8 +100,14 @@ class InscriptionScreen extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: integrar MercadoPago
+                  onPressed: () async {
+                    final user = ref.read(authStateProvider).valueOrNull;
+                    if (user == null) return;
+
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(user.uid)
+                        .update({'isPaid': true});
                   },
                   icon: const Icon(Icons.payment),
                   label: const Text('Pagar con MercadoPago'),
