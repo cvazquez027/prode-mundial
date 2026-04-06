@@ -5,14 +5,21 @@ import '../../../data/models/match_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../providers/matches_provider.dart';
 import '../predictions/match_prediction_screen.dart';
+import '../ranking/ranking_screen.dart';
+
+final _selectedTabProvider = StateProvider<int>((ref) => 0);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedPhase = ref.watch(selectedPhaseProvider);
-    final matchesAsync = ref.watch(matchesProvider);
+    final selectedTab = ref.watch(_selectedTabProvider);
+
+    final screens = [
+      const _MatchesTab(),
+      const RankingScreen(),
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -24,71 +31,11 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Selector de fases
-          SizedBox(
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: MatchPhase.values.map((phase) {
-                final isSelected = phase == selectedPhase;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8, top: 8),
-                  child: ChoiceChip(
-                    label: Text(
-                      _phaseLabel(phase),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isSelected ? Colors.white : null,
-                      ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) =>
-                        ref.read(selectedPhaseProvider.notifier).state = phase,
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const Gap(8),
-          // Lista de partidos
-          Expanded(
-            child: matchesAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
-              data: (matches) {
-                if (matches.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
-                        Gap(16),
-                        Text(
-                          'No hay partidos disponibles\npara esta fase todavía',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: matches.length,
-                  itemBuilder: (context, index) {
-                    final match = matches[index];
-                    return _MatchCard(match: match);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+      body: screens[selectedTab],
       bottomNavigationBar: NavigationBar(
+        selectedIndex: selectedTab,
+        onDestinationSelected: (index) =>
+            ref.read(_selectedTabProvider.notifier).state = index,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.sports_soccer),
@@ -98,12 +45,81 @@ class HomeScreen extends ConsumerWidget {
             icon: Icon(Icons.leaderboard),
             label: 'Ranking',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
         ],
       ),
+    );
+  }
+}
+
+class _MatchesTab extends ConsumerWidget {
+  const _MatchesTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedPhase = ref.watch(selectedPhaseProvider);
+    final matchesAsync = ref.watch(matchesProvider);
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 50,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: MatchPhase.values.map((phase) {
+              final isSelected = phase == selectedPhase;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8, top: 8),
+                child: ChoiceChip(
+                  label: Text(
+                    _phaseLabel(phase),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isSelected ? Colors.white : null,
+                    ),
+                  ),
+                  selected: isSelected,
+                  onSelected: (_) =>
+                      ref.read(selectedPhaseProvider.notifier).state = phase,
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const Gap(8),
+        Expanded(
+          child: matchesAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(child: Text('Error: $e')),
+            data: (matches) {
+              if (matches.isEmpty) {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
+                      Gap(16),
+                      Text(
+                        'No hay partidos disponibles\npara esta fase todavía',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: matches.length,
+                itemBuilder: (context, index) {
+                  final match = matches[index];
+                  return _MatchCard(match: match);
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
