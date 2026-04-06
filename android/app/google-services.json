@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "841745998289",
+    "project_id": "prode-mundial-8d6f8",
+    "storage_bucket": "prode-mundial-8d6f8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841745998289:android:6fae5548e9553fe707c0f0",
+        "android_client_info": {
+          "package_name": "com.datavazquez.prode_mundial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0r3nKNcQYzY_STT0n0ZEz6iAxAoJS-ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
