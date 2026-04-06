@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import '../../../data/models/match_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../providers/matches_provider.dart';
+import '../predictions/match_prediction_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -129,63 +130,73 @@ class _MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            if (match.group != null)
-              Text(
-                'Grupo ${match.group}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MatchPredictionScreen(match: match),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              if (match.group != null)
+                Text(
+                  'Grupo ${match.group}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey,
+                      ),
+                ),
+              const Gap(8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      match.homeTeam,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      match.status == MatchStatus.finished
+                          ? '${match.homeScore} - ${match.awayScore}'
+                          : 'VS',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      match.awayTeam,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
-            const Gap(8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    match.homeTeam,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade800,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    match.status == MatchStatus.finished
-                        ? '${match.homeScore} - ${match.awayScore}'
-                        : 'VS',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    match.awayTeam,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const Gap(8),
-            Text(
-              match.isPredictionOpen
-                  ? '⏰ Predicción abierta'
-                  : match.status == MatchStatus.finished
-                      ? '✅ Finalizado'
-                      : '🔒 Predicción cerrada',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+              const Gap(8),
+              Text(
+                match.isPredictionOpen
+                    ? '⏰ Predicción abierta'
+                    : match.status == MatchStatus.finished
+                        ? '✅ Finalizado'
+                        : '🔒 Predicción cerrada',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
         ),
       ),
     );
